@@ -1,0 +1,21 @@
+syntax = "proto3";
+import "google/protobuf/any.proto";
+
+package com.github.apuex.protobuf.serializer;
+option java_package = "com.github.apuex.protobuf.serializer";
+option java_outer_classname = "WireFormat";
+option java_multiple_files = true;
+
+
+
+message Register {
+  repeated string qualifiedNames = 1;
+}
+
+message Registry {
+  map<string, bytes> registered = 1;  // message qualified name => message metadata
+}
+message Envelope {
+  bytes msgMeta = 1;
+  bytes message = 2;
+}
