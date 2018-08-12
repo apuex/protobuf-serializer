@@ -26,7 +26,7 @@ public class SerializerTest {
 	}
 
 	private Serializer serializer() throws Exception {
-		Map<String, Parser<? extends Message>> msgDescriptors = new HashMap<>();
+		Map<String, Parser<? extends Message>> msgParsers = new HashMap<>();
 
 		FileDescriptorProto fdp = WireFormat.getDescriptor().toProto();
 		String packageName = fdp.getOptions().getJavaPackage();
@@ -36,9 +36,9 @@ public class SerializerTest {
 			Class<Message> clazz = ((Class<Message>) Class.forName(className));
 			Message defaultInstance = com.google.protobuf.Internal.getDefaultInstance(clazz);
 
-			msgDescriptors.put(className, defaultInstance.getParserForType());
+			msgParsers.put(className, defaultInstance.getParserForType());
 		}
-		Serializer serializer = new Serializer(msgDescriptors);
+		Serializer serializer = new Serializer(msgParsers);
 		return serializer;
 	}
 }

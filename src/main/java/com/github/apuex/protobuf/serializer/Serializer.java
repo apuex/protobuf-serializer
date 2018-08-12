@@ -9,10 +9,10 @@ import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
 public class Serializer {
-	private final Map<String, Parser<? extends Message>> msgDescriptors;
+	private final Map<String, Parser<? extends Message>> msgParsers;
 
-	public Serializer(final Map<String, Parser<? extends Message>> msgDescriptors) {
-		this.msgDescriptors = msgDescriptors;
+	public Serializer(final Map<String, Parser<? extends Message>> msgParsers) {
+		this.msgParsers = msgParsers;
 	}
 
 	public byte[] toBinary(Message obj) {
@@ -31,7 +31,7 @@ public class Serializer {
 		try {
 			Envelope envelope = Envelope.parseFrom(bytes);
 			String className = envelope.getMsgMeta().toString("utf8");
-			return msgDescriptors.get(className)
+			return msgParsers.get(className)
 					.parseFrom(envelope.getMessage());
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
