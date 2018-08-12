@@ -1,7 +1,7 @@
 package com.github.apuex.protobuf.serializer;
 
-import static com.github.apuex.protobuf.serializer.WireFormat.*;
-import static com.github.apuex.protobuf.serializer.Serializer.*;
+import static com.github.apuex.protobuf.serializer.Serializer.DEFAULT_CHARSET_NAME;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +11,8 @@ import org.junit.Test;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.DescriptorProtos.DescriptorProto;
 import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
+import com.google.protobuf.Int32Value;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
@@ -47,7 +49,14 @@ public class SerializerTest {
 			msgParsers.put(className, defaultInstance.getParserForType());
 		}
 		Serializer serializer = new Serializer();
-		serializer.register(msgParsers);
+		Registry registry = serializer.register(msgParsers);
+		registry.getMetaDataMap().forEach((key, value) -> {
+			try {
+				System.out.printf("%s => %d\n", key, Int32Value.parseFrom(value).getValue());
+			} catch (InvalidProtocolBufferException e) {
+				throw new RuntimeException(e);
+			}
+		});
 		return serializer;
 	}
 }

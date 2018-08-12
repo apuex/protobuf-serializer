@@ -13,25 +13,22 @@ import com.google.protobuf.Parser;
 public class Serializer {
 	public static final String DEFAULT_CHARSET_NAME = "utf8";
 	private int key = 2;
-	private final Charset charset;
-	private final Map<Integer, Parser<? extends Message>> msgParsers;
+	private final Map<ByteString, Parser<? extends Message>> msgParsers;
   private final Map<String, ByteString> metaData;
 
 	public Serializer() {
-		this.charset = Charset.forName(DEFAULT_CHARSET_NAME);
 		this.msgParsers = new HashMap<>();
-		this.msgParsers.put(0, Registry.getDefaultInstance().getParserForType());
-		this.msgParsers.put(1, Register.getDefaultInstance().getParserForType());
+		this.msgParsers.put(Int32Value.of(0).toByteString(), Registry.getDefaultInstance().getParserForType());
+		this.msgParsers.put(Int32Value.of(1).toByteString(), Register.getDefaultInstance().getParserForType());
 		this.metaData = new HashMap<>();
 		this.metaData.put(Registry.class.getName(), Int32Value.of(0).toByteString());
 		this.metaData.put(Register.class.getName(), Int32Value.of(1).toByteString());
 	}
 
 	public Serializer(Charset charset, final Map<String, Parser<? extends Message>> msgParsers) {
-		this.charset = charset;
 		this.msgParsers = new HashMap<>();
-		this.msgParsers.put(0, Registry.getDefaultInstance().getParserForType());
-		this.msgParsers.put(1, Register.getDefaultInstance().getParserForType());
+		this.msgParsers.put(Int32Value.of(0).toByteString(), Registry.getDefaultInstance().getParserForType());
+		this.msgParsers.put(Int32Value.of(1).toByteString(), Register.getDefaultInstance().getParserForType());
 		this.metaData = new HashMap<>();
 		this.metaData.put(Registry.class.getName(), Int32Value.of(0).toByteString());
 		this.metaData.put(Register.class.getName(), Int32Value.of(1).toByteString());
@@ -39,18 +36,52 @@ public class Serializer {
 	
 	public Registry register(final Map<String, Parser<? extends Message>> msgParsers) {
 
-		this.msgParsers.keySet().forEach(k -> { if(k > key) key = k; });
+		this.msgParsers.keySet().forEach(k -> { 
+			int v;
+			try {
+				v = Int32Value.parseFrom(k).getValue();
+  			if(v > key) key = v; 
+			} catch (InvalidProtocolBufferException e) {
+  			throw new RuntimeException(e);
+			}
+		});
 
 		msgParsers.forEach((k, v) -> {
-			if (Register.class.getName() != k || Registry.class.getName() != k) {
+			if (!Register.class.getName().equals(k) && !Registry.class.getName().equals(k)) {
 				final int currentKey = key++;
-				this.msgParsers.put(currentKey, v);
-				metaData.put(k, Int32Value.of(currentKey).toByteString());
+				this.msgParsers.put(Int32Value.of(currentKey).toByteString(), v);
+				this.metaData.put(k, Int32Value.of(currentKey).toByteString());
+			} else {
+				System.out.printf("%s is skipped.\n", k);
 			}
 		});
 		
 		return Registry.newBuilder()
-				.putAllMetaData(metaData)
+				.putAllMetaData(this.metaData)
+				.build();
+	}
+
+	public Registry merge(Registry registry) {
+		registry.getMetaDataMap().forEach((k, v) -> {
+			if (!Register.class.getName().equals(k) && !Registry.class.getName().equals(k)) {
+				try {
+    			@SuppressWarnings("unchecked")
+    			Class<Message> clazz = ((Class<Message>) Class.forName(k));
+					Message defaultInstance = com.google.protobuf.Internal.getDefaultInstance(clazz);
+				  this.msgParsers.put(v, defaultInstance.getParserForType());
+  				this.metaData.put(k, v);
+				  int currentKey = Int32Value.parseFrom(v).getValue();
+  			  if(currentKey > key) key = currentKey; 
+				} catch (Exception e) {
+    			throw new RuntimeException(e);
+				}
+			} else {
+				System.out.printf("%s is skipped.\n", k);
+			}
+		});
+		
+		return Registry.newBuilder()
+				.putAllMetaData(this.metaData)
 				.build();
 	}
 	
@@ -65,8 +96,7 @@ public class Serializer {
 	public Message fromBinary(byte[] bytes) {
 		try {
 			Envelope envelope = Envelope.parseFrom(bytes);
-			Integer className = Int32Value.parseFrom(envelope.getMessageMeta()).getValue();
-			return msgParsers.get(className)
+			return msgParsers.get(envelope.getMessageMeta())
 					.parseFrom(envelope.getMessageBody());
 		} catch (InvalidProtocolBufferException e) {
 			throw new RuntimeException(e);
