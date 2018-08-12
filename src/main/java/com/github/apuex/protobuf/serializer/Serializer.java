@@ -1,6 +1,6 @@
 package com.github.apuex.protobuf.serializer;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import com.google.protobuf.ByteString;
@@ -9,32 +9,33 @@ import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
 public class Serializer {
+	private final Charset charset;
 	private final Map<String, Parser<? extends Message>> msgParsers;
 
 	public Serializer(final Map<String, Parser<? extends Message>> msgParsers) {
+		this.charset = Charset.forName("utf8");
 		this.msgParsers = msgParsers;
 	}
 
+	public Serializer(Charset charset, final Map<String, Parser<? extends Message>> msgParsers) {
+		this.charset = charset;
+		this.msgParsers = msgParsers;
+	}
+	
 	public byte[] toBinary(Message obj) {
-		try {
-			return Envelope.newBuilder()
-					.setMsgMeta(ByteString.copyFrom(obj.getClass().getName(), "utf8"))
-					.setMessage(obj.toByteString())
-					.build()
-					.toByteArray();
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+  	return Envelope.newBuilder()
+			.setMsgMeta(ByteString.copyFrom(obj.getClass().getName(), charset))
+			.setMessage(obj.toByteString())
+			.build()
+			.toByteArray();
 	}
 
 	public Message fromBinary(byte[] bytes) {
 		try {
 			Envelope envelope = Envelope.parseFrom(bytes);
-			String className = envelope.getMsgMeta().toString("utf8");
+			String className = envelope.getMsgMeta().toString(charset);
 			return msgParsers.get(className)
 					.parseFrom(envelope.getMessage());
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
 		} catch (InvalidProtocolBufferException e) {
 			throw new RuntimeException(e);
 		}
