@@ -24,6 +24,10 @@ public class SerializerTest {
 
 		Serializer serializer = serializer();
 		Message message = serializer.fromBinary(serializer.toBinary(registry));
+		Assert.assertEquals(
+				String.format("%s != %s", registry.getClass().getName(), message.getClass().getName()),
+				registry.getClass().getName(), 
+				message.getClass().getName());
 		Assert.assertEquals(String.format("%s != %s", registry, message), registry, message);
 	}
 
