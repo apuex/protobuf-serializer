@@ -1,5 +1,6 @@
 package com.github.apuex.protobuf.serializer;
 
+import static com.github.apuex.protobuf.serializer.WireFormat.*;
 import java.nio.charset.Charset;
 import java.util.Map;
 

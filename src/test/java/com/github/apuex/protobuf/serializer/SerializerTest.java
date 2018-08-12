@@ -1,5 +1,6 @@
 package com.github.apuex.protobuf.serializer;
 
+import static com.github.apuex.protobuf.serializer.WireFormat.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,8 +31,10 @@ public class SerializerTest {
 
 		FileDescriptorProto fdp = WireFormat.getDescriptor().toProto();
 		String packageName = fdp.getOptions().getJavaPackage();
+		Boolean multipleFiles = fdp.getOptions().getJavaMultipleFiles();
+		String outerClassName = multipleFiles ? "" : fdp.getOptions().getJavaOuterClassname() + "$";
 		for (DescriptorProto dp : fdp.getMessageTypeList()) {
-			String className = String.format("%s.%s", packageName, dp.getName());
+			String className = String.format("%s.%s%s", packageName, outerClassName, dp.getName());
 			@SuppressWarnings("unchecked")
 			Class<Message> clazz = ((Class<Message>) Class.forName(className));
 			Message defaultInstance = com.google.protobuf.Internal.getDefaultInstance(clazz);
