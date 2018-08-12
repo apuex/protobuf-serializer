@@ -22,7 +22,7 @@ public class SerializerTest {
 
 		Serializer serializer = serializer();
 		Message message = serializer.fromBinary(serializer.toBinary(registry));
-		Assert.assertTrue(String.format("%s != %s", registry, message), registry.equals(message));
+		Assert.assertEquals(String.format("%s != %s", registry, message), registry, message);
 	}
 
 	private Serializer serializer() throws Exception {

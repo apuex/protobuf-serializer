@@ -24,8 +24,8 @@ public class Serializer {
 	
 	public byte[] toBinary(Message obj) {
   	return Envelope.newBuilder()
-			.setMsgMeta(ByteString.copyFrom(obj.getClass().getName(), charset))
-			.setMessage(obj.toByteString())
+			.setMessageMeta(ByteString.copyFrom(obj.getClass().getName(), charset))
+			.setMessageBody(obj.toByteString())
 			.build()
 			.toByteArray();
 	}
@@ -33,9 +33,9 @@ public class Serializer {
 	public Message fromBinary(byte[] bytes) {
 		try {
 			Envelope envelope = Envelope.parseFrom(bytes);
-			String className = envelope.getMsgMeta().toString(charset);
+			String className = envelope.getMessageMeta().toString(charset);
 			return msgParsers.get(className)
-					.parseFrom(envelope.getMessage());
+					.parseFrom(envelope.getMessageBody());
 		} catch (InvalidProtocolBufferException e) {
 			throw new RuntimeException(e);
 		}

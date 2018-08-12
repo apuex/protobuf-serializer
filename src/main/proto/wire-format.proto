@@ -17,6 +17,6 @@ message Registry {
 }
 
 message Envelope {
-  bytes msgMeta = 1;
-  bytes message = 2;
+  bytes messageMeta = 1;
+  bytes messageBody = 2;
 }
