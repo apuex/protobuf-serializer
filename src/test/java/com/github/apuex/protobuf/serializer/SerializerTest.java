@@ -20,12 +20,14 @@ public class SerializerTest {
 
 	@Test
 	public void testCodec1() throws Exception {
+		Serializer serializer = serializer();
 		Map<String, ByteString> values = new HashMap<>();
 		values.put("hello", ByteString.copyFrom("world", DEFAULT_CHARSET_NAME));
 		Registry registry = Registry.newBuilder().putAllMetaData(values).build();
 
-		Serializer serializer = serializer();
-		Message message = serializer.fromBinary(serializer.toBinary(registry));
+		byte[] binary = serializer.toBinary(registry);
+		print(binary);
+		Message message = serializer.fromBinary(binary);
 		Assert.assertEquals(
 				String.format("%s != %s", registry.getClass().getName(), message.getClass().getName()),
 				registry.getClass().getName(), 
@@ -33,6 +35,23 @@ public class SerializerTest {
 		Assert.assertEquals(String.format("%s != %s", registry, message), registry, message);
 	}
 
+	@Test
+	public void testCodec2() throws Exception {
+		Serializer serializer = serializer();
+		Map<String, ByteString> values = new HashMap<>();
+		values.put("hello", ByteString.copyFrom("world", DEFAULT_CHARSET_NAME));
+		Registry registry = serializer.getRegistry();
+
+		byte[] binary = serializer.toBinary(registry);
+		print(binary);
+		Message message = serializer.fromBinary(binary);
+		Assert.assertEquals(
+				String.format("%s != %s", registry.getClass().getName(), message.getClass().getName()),
+				registry.getClass().getName(), 
+				message.getClass().getName());
+		Assert.assertEquals(String.format("%s != %s", registry, message), registry, message);
+	}
+	
 	private Serializer serializer() throws Exception {
 		Map<String, Parser<? extends Message>> msgParsers = new HashMap<>();
 
@@ -58,5 +77,13 @@ public class SerializerTest {
 			}
 		});
 		return serializer;
+	}
+
+	private void print(byte[] binary) throws Exception {
+		System.out.println("binary:");
+		for(byte b: binary) {
+			System.out.printf("%02x ", 0xff&b);
+		}
+		System.out.println();
 	}
 }

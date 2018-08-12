@@ -85,6 +85,16 @@ public class Serializer {
 				.build();
 	}
 	
+	public Map<String, ByteString> getMetaData() {
+		return metaData;
+	}
+
+	public Registry getRegistry() {
+		return Registry.newBuilder()
+				.putAllMetaData(metaData)
+				.build();
+	}
+	
 	public byte[] toBinary(Message obj) {
   	return Envelope.newBuilder()
 			.setMessageMeta(metaData.get(obj.getClass().getName()))
