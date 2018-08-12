@@ -1,6 +1,7 @@
 package com.github.apuex.protobuf.serializer;
 
 import static com.github.apuex.protobuf.serializer.WireFormat.*;
+import static com.github.apuex.protobuf.serializer.Serializer.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class SerializerTest {
 	@Test
 	public void testCodec1() throws Exception {
 		Map<String, ByteString> values = new HashMap<>();
-		values.put("hello", ByteString.copyFrom("world", "utf8"));
+		values.put("hello", ByteString.copyFrom("world", DEFAULT_CHARSET_NAME));
 		Registry registry = Registry.newBuilder().putAllMetaData(values).build();
 
 		Serializer serializer = serializer();

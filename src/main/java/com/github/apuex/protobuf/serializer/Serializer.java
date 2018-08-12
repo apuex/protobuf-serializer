@@ -10,11 +10,12 @@ import com.google.protobuf.Message;
 import com.google.protobuf.Parser;
 
 public class Serializer {
+	public static final String DEFAULT_CHARSET_NAME = "utf8";
 	private final Charset charset;
 	private final Map<String, Parser<? extends Message>> msgParsers;
 
 	public Serializer(final Map<String, Parser<? extends Message>> msgParsers) {
-		this.charset = Charset.forName("utf8");
+		this.charset = Charset.forName(DEFAULT_CHARSET_NAME);
 		this.msgParsers = msgParsers;
 	}
 
