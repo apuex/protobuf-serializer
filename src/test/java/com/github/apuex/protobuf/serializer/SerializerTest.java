@@ -42,7 +42,8 @@ public class SerializerTest {
 
 			msgParsers.put(className, defaultInstance.getParserForType());
 		}
-		Serializer serializer = new Serializer(msgParsers);
+		Serializer serializer = new Serializer();
+		serializer.register(msgParsers);
 		return serializer;
 	}
 }
