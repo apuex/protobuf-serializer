@@ -13,8 +13,9 @@ message Register {
 }
 
 message Registry {
-  map<string, bytes> registered = 1;  // message qualified name => message metadata
+  map<string, bytes> metaData = 1;  // message qualified name => message metadata
 }
+
 message Envelope {
   bytes msgMeta = 1;
   bytes message = 2;
