@@ -1,26 +1,22 @@
 package com.github.apuex.protobuf.serializer;
 
-import static com.github.apuex.protobuf.serializer.Serializer.DEFAULT_CHARSET_NAME;
+import com.google.protobuf.*;
+import com.google.protobuf.DescriptorProtos.DescriptorProto;
+import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.google.protobuf.ByteString;
-import com.google.protobuf.DescriptorProtos.DescriptorProto;
-import com.google.protobuf.DescriptorProtos.FileDescriptorProto;
-import com.google.protobuf.Int32Value;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
-import com.google.protobuf.Parser;
 
 public class SerializerTest {
 
+	private static final String DEFAULT_CHARSET_NAME = "utf8";
+
 	@Test
 	public void testCodec1() throws Exception {
-		Serializer serializer = serializer();
+		SerializerImpl serializer = serializer();
 		Map<String, ByteString> values = new HashMap<>();
 		values.put("hello", ByteString.copyFrom("world", DEFAULT_CHARSET_NAME));
 		Registry registry = Registry.newBuilder().putAllMetaData(values).build();
@@ -37,7 +33,7 @@ public class SerializerTest {
 
 	@Test
 	public void testCodec2() throws Exception {
-		Serializer serializer = serializer();
+		SerializerImpl serializer = serializer();
 		Map<String, ByteString> values = new HashMap<>();
 		values.put("hello", ByteString.copyFrom("world", DEFAULT_CHARSET_NAME));
 		Registry registry = serializer.getRegistry();
@@ -52,7 +48,7 @@ public class SerializerTest {
 		Assert.assertEquals(String.format("%s != %s", registry, message), registry, message);
 	}
 	
-	private Serializer serializer() throws Exception {
+	private SerializerImpl serializer() throws Exception {
 		Map<String, Parser<? extends Message>> msgParsers = new HashMap<>();
 
 		FileDescriptorProto fdp = WireFormat.getDescriptor().toProto();
@@ -67,9 +63,11 @@ public class SerializerTest {
 
 			msgParsers.put(className, defaultInstance.getParserForType());
 		}
-		Serializer serializer = new Serializer();
-		Registry registry = serializer.register(msgParsers);
-		registry.getMetaDataMap().forEach((key, value) -> {
+
+		ParserRegistryImpl registry = new ParserRegistryImpl();
+		SerializerImpl serializer = new SerializerImpl(registry);
+		Registry registryValue = registry.register(msgParsers);
+		registryValue.getMetaDataMap().forEach((key, value) -> {
 			try {
 				System.out.printf("%s => %d\n", key, Int32Value.parseFrom(value).getValue());
 			} catch (InvalidProtocolBufferException e) {
