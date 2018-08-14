@@ -6,6 +6,8 @@ import com.google.protobuf.Parser;
 
 public interface ParserRegistry {
   Parser<? extends Message> getParser(ByteString metaData);
+
   ByteString getMetaData(String clazz);
+
   Registry getRegistry();
 }
