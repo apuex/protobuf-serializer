@@ -1,5 +1,4 @@
 syntax = "proto3";
-import "google/protobuf/any.proto";
 
 package com.github.apuex.protobuf.serializer;
 option java_package = "com.github.apuex.protobuf.serializer";
