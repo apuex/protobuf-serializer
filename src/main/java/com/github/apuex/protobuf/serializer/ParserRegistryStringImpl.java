@@ -14,6 +14,7 @@ public class ParserRegistryStringImpl implements ParserRegistry {
     this.msgParsers.put(StringValue.of(Register.class.getName()).toByteString(), Register.getDefaultInstance().getParserForType());
   }
 
+  @Override
   public Registry register(final Map<String, Parser<? extends Message>> msgParsers) {
     Map<String, ByteString> registered = new HashMap<>();
 
