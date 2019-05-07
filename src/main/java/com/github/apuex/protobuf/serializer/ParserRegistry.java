@@ -7,6 +7,7 @@ import com.google.protobuf.Parser;
 import java.util.Map;
 
 public interface ParserRegistry {
+  Parser<? extends Message> getParser(String clazz);
   Parser<? extends Message> getParser(ByteString metaData);
 
   ByteString getMetaData(String clazz);

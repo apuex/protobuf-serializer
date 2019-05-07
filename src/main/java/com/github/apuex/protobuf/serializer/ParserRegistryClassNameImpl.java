@@ -5,10 +5,10 @@ import com.google.protobuf.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ParserRegistryStringImpl implements ParserRegistry {
+public class ParserRegistryClassNameImpl implements ParserRegistry {
   private final Map<ByteString, Parser<? extends Message>> msgParsers;
 
-  public ParserRegistryStringImpl() {
+  public ParserRegistryClassNameImpl() {
     this.msgParsers = new HashMap<>();
     this.msgParsers.put(StringValue.of(Registry.class.getName()).toByteString(), Registry.getDefaultInstance().getParserForType());
     this.msgParsers.put(StringValue.of(Register.class.getName()).toByteString(), Register.getDefaultInstance().getParserForType());
@@ -66,6 +66,11 @@ public class ParserRegistryStringImpl implements ParserRegistry {
     return Registry.newBuilder()
         .putAllMetaData(registered)
         .build();
+  }
+
+  @Override
+  public Parser<? extends Message> getParser(String clazz) {
+    return msgParsers.get(getMetaData(clazz));
   }
 
   @Override

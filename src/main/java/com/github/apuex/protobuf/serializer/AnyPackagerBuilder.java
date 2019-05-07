@@ -9,24 +9,24 @@ import com.google.protobuf.Parser;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SerializerBuilder {
+public class AnyPackagerBuilder {
   private Map<String, Parser<? extends Message>> msgParsers;
   private ParserRegistry registry;
 
-  public SerializerBuilder() {
+  public AnyPackagerBuilder() {
     this.msgParsers = new HashMap<>();
   }
 
-  public static SerializerBuilder builder() {
-    return new SerializerBuilder();
+  public static AnyPackagerBuilder builder() {
+    return new AnyPackagerBuilder();
   }
 
-  public SerializerBuilder withParsers(Map<String, Parser<? extends Message>> msgParsers) {
+  public AnyPackagerBuilder withParsers(Map<String, Parser<? extends Message>> msgParsers) {
     this.msgParsers.putAll(msgParsers);
     return this;
   }
 
-  public SerializerBuilder withFileDescriptorProto(FileDescriptorProto fdp) {
+  public AnyPackagerBuilder withFileDescriptorProto(FileDescriptorProto fdp) {
     String packageName = fdp.getOptions().getJavaPackage();
     Boolean multipleFiles = fdp.getOptions().getJavaMultipleFiles();
     String outerClassName = multipleFiles ? "" : fdp.getOptions().getJavaOuterClassname() + "$";
@@ -46,19 +46,19 @@ public class SerializerBuilder {
     return this;
   }
 
-  public SerializerBuilder withIntegerRegistry() {
+  public AnyPackagerBuilder withIntegerRegistry() {
     registry = new ParserRegistryIntegerImpl();
     return this;
   }
 
-  public SerializerBuilder withStringRegistry() {
+  public AnyPackagerBuilder withStringRegistry() {
     registry = new ParserRegistryClassNameImpl();
     return this;
   }
 
-  public Serializer build() {
+  public AnyPackager build() {
     registry.register(msgParsers);
-    return new SerializerImpl(registry);
+    return new AnyPackager(registry);
   }
 
   public Map<String, Parser<? extends Message>> getMsgParsers() {

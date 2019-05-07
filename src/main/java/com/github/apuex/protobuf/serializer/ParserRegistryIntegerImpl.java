@@ -82,6 +82,11 @@ public class ParserRegistryIntegerImpl implements ParserRegistry {
   }
 
   @Override
+  public Parser<? extends Message> getParser(String clazz) {
+    return msgParsers.get(getMetaData(clazz));
+  }
+
+  @Override
   public Parser<? extends Message> getParser(ByteString metaData) {
     return msgParsers.get(metaData);
   }
